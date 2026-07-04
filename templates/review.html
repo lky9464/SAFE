@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}자료 검토{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">자료 검토</h4>
+{% if page_error is defined and page_error %}
+<div class="alert alert-danger">{{ page_error }}</div>
+{% endif %}
+
+<!-- STEP 1: 업로드 폼 -->
+<div id="step-upload">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">사업명 (선택)</label>
+            <input type="text" class="form-control" id="business-nm" placeholder="사업명 입력">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">체크리스트</label>
+            <select class="form-select" id="checklist-id">
+                <option value="-1">⭕ 전체 (모든 체크리스트 점검)</option>
+                <option value="">자동 선택</option>
+                {% for cl in checklists %}
+                <option value="{{ cl.checklist_id }}" data-type="{{ cl.data_type }}">
+                    {{ cl.data_type_nm }} — {{ cl.checklist_nm }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">담당자</label>
+            <input type="text" class="form-control" id="reviewer" value="담당자">
+        </div>
+    </div>
+
+    <!-- 사업 통합 검토 (일제점검): ①~④ 다중 업로드 -->
+    <div id="case-mode-panel" class="d-none mb-4">
+        <p class="text-muted mb-2">STEP 1 — 사업 자료 업로드 <small>(①~④ 중 있는 자료만)</small></p>
+        <p class="small text-muted mb-3">
+            일제점검(통합) 체크리스트로 <strong>사업 1건</strong>을 한 번에 검토합니다.
+            업로드한 자료만 제출된 것으로 반영되며, 없는 자료 항목은 해당없음(N/A) 처리됩니다.
+        </p>
+        <div class="row g-3" id="case-slots">
+            {% set case_docs = [
+                ('1', '① 사업계획서', 'PDF·HWP'),
+                ('2', '② 집행내역서', 'PDF·HWP·Excel'),
+                ('3', '③ 지출증빙', 'PDF·이미지·ZIP'),
+                ('4', '④ 정산보고서', 'PDF·HWP·Excel'),
+            ] %}
+            {% for code, label, hint in case_docs %}
+            <div class="col-md-6">
+                <div class="case-slot card h-100" data-doc="{{ code }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <div class="fw-semibold">{{ label }}</div>
+                                <small class="text-muted">{{ hint }}</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger d-none case-clear"
+                                    data-doc="{{ code }}">제거</button>
+                        </div>
+                        <div class="case-drop drop-zone-sm" data-doc="{{ code }}">
+                            <span class="case-drop-label">클릭 또는 드래그</span>
+                        </div>
+                        <input type="file" class="d-none case-file-input" data-doc="{{ code }}">
+                        <div class="case-file-info small text-success mt-2 d-none" data-doc="{{ code }}"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 유형별 단일 자료 (기존) -->
+    <div id="single-mode-panel">
+        <p class="text-muted mb-3">STEP 1 — 자료유형 선택</p>
+        <div class="row g-3 mb-4">
+            {% for k, v in data_types.items() %}
+            <div class="col-md-3">
+                <div class="type-card" data-type="{{ k }}" onclick="selectType('{{ k }}', this)">
+                    <div class="fs-4 fw-bold text-primary">{{ loop.index }}</div>
+                    <div class="fw-semibold">{{ v }}</div>
+                    <small class="text-muted">
+                        {% if k == '1' %}PDF·HWP
+                        {% elif k == '2' %}PDF·HWP·Excel
+                        {% elif k == '3' %}PDF·이미지·ZIP
+                        {% else %}PDF·HWP·Excel{% endif %}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <p class="text-muted mb-2">STEP 2 — 파일 업로드</p>
+        <div class="drop-zone mb-3" id="drop-zone">
+            <div class="fs-3 mb-2">📂</div>
+            <p>파일을 이곳에 드래그하거나 클릭하여 업로드</p>
+            <small class="text-muted" id="upload-hint">PDF · HWP · Excel · JPG · PNG (최대 100MB)</small>
+            <input type="file" id="file-input" class="d-none">
+        </div>
+        <div id="file-info" class="alert alert-info d-none"></div>
+    </div>
+
+    <!-- STEP: 사업 프로필 (일제점검 N/A) -->
+    <div id="profile-panel" class="card profile-panel mb-4 d-none">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">STEP 2 — 사업 프로필 <small class="text-muted">(일제점검 N/A)</small></span>
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="profile-enabled" checked>
+                <label class="form-check-label" for="profile-enabled">프로필 적용</label>
+            </div>
+        </div>
+        <div class="card-body" id="profile-body">
+            <p class="text-muted small mb-3">
+                ② 집행내역에 <strong>실제 집행한 세목</strong>만 선택하세요. 선택하지 않은 세목의 점검항목은 <strong>해당없음(N/A)</strong> 처리됩니다.
+            </p>
+
+            <div id="profile-docs-manual">
+                <p class="fw-semibold mb-2">제출 자료 (4종)</p>
+                <div class="row g-2 mb-3 profile-doc-row">
+                    <div class="col-md-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input profile-doc" type="checkbox" id="doc-1" data-doc="1" checked>
+                            <label class="form-check-label" for="doc-1">① 사업계획서</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input profile-doc" type="checkbox" id="doc-2" data-doc="2" checked>
+                            <label class="form-check-label" for="doc-2">② 집행내역서</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input profile-doc" type="checkbox" id="doc-3" data-doc="3" checked>
+                            <label class="form-check-label" for="doc-3">③ 지출증빙</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="form-check">
+                            <input class="form-check-input profile-doc" type="checkbox" id="doc-4" data-doc="4" checked>
+                            <label class="form-check-label" for="doc-4">④ 정산보고서</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p id="profile-docs-auto" class="small text-muted d-none mb-3">
+                제출 자료는 위에서 업로드한 파일 기준으로 자동 반영됩니다.
+            </p>
+
+            <p class="fw-semibold mb-2">② 집행 세목 <small class="text-muted">(일제점검 10개)</small></p>
+            <div class="row g-2 mb-2">
+                {% for sm in profile_seomoks|default([]) %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="form-check seomok-check">
+                        <input class="form-check-input profile-seomok" type="checkbox"
+                               id="seomok-{{ loop.index }}" value="{{ sm.code }}">
+                        <label class="form-check-label" for="seomok-{{ loop.index }}">
+                            <span class="seomok-code">{{ sm.code }}</span>
+                            {{ sm.label }}
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSeomoks()">세목 전체 해제</button>
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllSeomoks()">세목 전체 선택</button>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="operating-grant-only">
+                <label class="form-check-label" for="operating-grant-only">
+                    운영비 교부 사업 (JC-04 전용)
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button class="btn btn-primary btn-lg px-5" id="btn-start" onclick="startReview()" disabled>
+            검토 시작
+        </button>
+    </div>
+</div>
+
+<!-- STEP 2: 진행 상태 -->
+<div id="step-progress" class="d-none">
+    <div class="card p-4">
+        <h5>처리 중 — 전체 로컬 처리 (외부 전송 없음)</h5>
+        <div id="progress-steps" class="my-3"></div>
+        <div class="progress mb-3" style="height:24px">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 id="progress-bar" style="width:0%">0%</div>
+        </div>
+        <p class="text-muted" id="progress-message">처리 준비 중...</p>
+        <div id="all-results" class="d-none mb-3"></div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">취소</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.SAFE_UPLOAD_LIMITS = {
+    maxFileMb: {{ upload_limits.max_file_mb if upload_limits is defined else 100 }},
+    maxZipMb: {{ upload_limits.max_zip_mb if upload_limits is defined else 500 }},
+    maxZipFiles: {{ upload_limits.max_zip_files if upload_limits is defined else 400 }},
+};
+</script>
+<script src="/static/js/review.js?v={{ static_ver if static_ver is defined else 0 }}"></script>
+{% endblock %}

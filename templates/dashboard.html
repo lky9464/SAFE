@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}대시보드{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">메인 대시보드</h4>
+
+<!-- 현황 카드 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card card-stat stat-total p-3">
+            <div class="text-muted small">총 검토</div>
+            <div class="fs-2 fw-bold text-primary">{{ stats.total }}건</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat stat-pass p-3">
+            <div class="text-muted small">적합</div>
+            <div class="fs-2 fw-bold" style="color:var(--safe-pass)">{{ stats.pass }}건</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat stat-warn p-3">
+            <div class="text-muted small">주의</div>
+            <div class="fs-2 fw-bold" style="color:var(--safe-warn)">{{ stats.warn }}건</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-stat stat-fail p-3">
+            <div class="text-muted small">부적합</div>
+            <div class="fs-2 fw-bold" style="color:var(--safe-fail)">{{ stats.fail }}건</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 자료유형별 현황 -->
+    <div class="col-md-5">
+        <div class="card p-3">
+            <h6 class="border-start border-primary border-4 ps-2 mb-3">자료유형별 현황</h6>
+            {% for key, val in stats.by_type.items() %}
+            <div class="d-flex justify-content-between py-2 border-bottom">
+                <span>{{ loop.index }}. {{ val.name }}</span>
+                <span>
+                    <span class="text-muted">{{ val.total }}건</span>
+                    <span class="badge badge-pass ms-1">{{ val.pass }}</span>
+                    <span class="badge badge-warn ms-1">{{ val.warn }}</span>
+                    <span class="badge badge-fail ms-1">{{ val.fail }}</span>
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 최근 검토 + 바로가기 -->
+    <div class="col-md-7">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="card p-3">
+                    <h6 class="border-start border-primary border-4 ps-2 mb-3">최근 검토 목록</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead><tr>
+                                <th>ID</th><th>유형</th><th>사업명</th>
+                                <th>검토일</th><th>담당자</th><th>결과</th>
+                            </tr></thead>
+                            <tbody>
+                            {% for r in stats.recent %}
+                            <tr style="cursor:pointer" onclick="location.href='/review/{{ r.review_id }}/result'">
+                                <td>{{ r.review_id }}</td>
+                                <td>{{ r.data_type_nm }}</td>
+                                <td>{{ r.business_nm }}</td>
+                                <td>{{ r.review_at }}</td>
+                                <td>{{ r.reviewer }}</td>
+                                <td>
+                                    {% if r.final_result == 'P' %}
+                                    <span class="badge badge-pass">적합</span>
+                                    {% elif r.final_result == 'W' %}
+                                    <span class="badge badge-warn">주의</span>
+                                    {% else %}
+                                    <span class="badge badge-fail">부적합</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="6" class="text-center text-muted">검토 이력이 없습니다.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card p-3">
+                    <h6 class="border-start border-primary border-4 ps-2 mb-3">바로가기</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/review/new" class="btn btn-primary">+ 새 검토 시작</a>
+                        <a href="/checklist" class="btn btn-outline-primary">체크리스트 관리</a>
+                        <a href="/history" class="btn btn-outline-secondary">전체 이력 보기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

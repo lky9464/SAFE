@@ -1,0 +1,344 @@
+{
+  "checklist_nm": "업무가이드·다중 감사사례 기반 지출증빙자료 체크리스트",
+  "data_type": "3",
+  "base_law": "지방자치단체 보조금 관리에 관한 법률",
+  "created_at": "2026-06-26",
+  "items": [
+    {
+      "item_no": 1,
+      "category": "증빙 완전성",
+      "item_content": "지출 증빙서류(세금계산서, 영수증, 카드전표, 계약서 등)가 완비되어 있는가?",
+      "judge_criteria": "증빙서류 완비 (출처: 업무가이드 §3-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 2,
+      "category": "증빙 대조",
+      "item_content": "지출결의서와 계좌거래내역이 상호 일치하는가?",
+      "judge_criteria": "결의서-거래내역 대조 (출처: 업무가이드 §3-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 3,
+      "category": "증빙 대조",
+      "item_content": "보조금 계좌 거래내역서와 지출결의서(건별 일자·금액)가 일치하는가?",
+      "judge_criteria": "계좌-결의서 건별 대조 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 4,
+      "category": "증빙 유효성",
+      "item_content": "지출 증빙서류의 작성일·금액·채주가 정확한가?",
+      "judge_criteria": "작성일·금액·채주 정확성 (출처: 업무가이드 §4-2)",
+      "law_ref": "부가가치세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 5,
+      "category": "증빙 유효성",
+      "item_content": "모든 영수증·세금계산서의 발행일이 사업기간 내인가?",
+      "judge_criteria": "증빙 발행일 ∈ 사업기간 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 6,
+      "category": "증빙 유효성",
+      "item_content": "증빙 금액과 집행내역서 금액이 일치하는가?",
+      "judge_criteria": "증빙액-집행액 일치 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 7,
+      "category": "증빙 유효성",
+      "item_content": "세금계산서는 적법한 사업자가 발행하였는가?",
+      "judge_criteria": "사업자등록·적격 증빙 (출처: 업무가이드 §4-2)",
+      "law_ref": "부가가치세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 8,
+      "category": "소급집행",
+      "item_content": "보조금 교부결정 이전에 이루어진 거래를 보조금으로 소급 집행하지 않았는가?",
+      "judge_criteria": "교부 전 거래 소급 불가 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방자치단체 보조금 관리에 관한 법률",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 9,
+      "category": "내부거래",
+      "item_content": "내부거래(특수관계인·관련 단체 간 거래) 및 허위 채주 지급 여부를 확인하였는가?",
+      "judge_criteria": "특수관계·허위 채주 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방자치단체 보조금 관리에 관한 법률",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 10,
+      "category": "원천징수",
+      "item_content": "강사료·원고료 지급 시 소득세를 원천징수하였는가?",
+      "judge_criteria": "원천징수 이행 (출처: 업무가이드 §3-2)",
+      "law_ref": "소득세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 11,
+      "category": "증빙 완전성",
+      "item_content": "공사·용역 계약 이행을 검수조서 등으로 확인할 수 있는가?",
+      "judge_criteria": "검수·이행 증빙 (출처: 업무가이드 §3-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 12,
+      "category": "증빙 완전성",
+      "item_content": "출장비 지급 시 출장신청·복명서·교통비 영수증이 구비되어 있는가?",
+      "judge_criteria": "출장 관련 증빙 (출처: 업무가이드 §3-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 13,
+      "category": "중복 증빙",
+      "item_content": "동일 증빙이 중복 제출되지 않았는가?",
+      "judge_criteria": "SHA256·일련번호 중복 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 14,
+      "category": "중복 증빙",
+      "item_content": "동일 날짜·동일 금액·동일 공급자의 증빙이 복수로 제출되지 않았는가?",
+      "judge_criteria": "날짜·금액·공급자 중복 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 15,
+      "category": "증빙 적정성",
+      "item_content": "증빙의 공급자명이 집행내역서 지급처와 일치하는가?",
+      "judge_criteria": "공급자-지급처 일치 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 16,
+      "category": "증빙 적정성",
+      "item_content": "증빙의 품목·수량·단가가 집행내역서와 일치하는가?",
+      "judge_criteria": "품목·수량·단가 대조 (출처: 업무가이드 §4-2)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 17,
+      "category": "증빙 완전성",
+      "item_content": "모든 집행 항목에 대한 증빙이 빠짐없이 첨부되었는가?",
+      "judge_criteria": "집행 항목별 증빙 대응 (출처: 업무가이드 §4-1)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 18,
+      "category": "증빙 완전성",
+      "item_content": "제출 증빙서류 목록(정산서, 지출결의서, 세금계산서, 통장 거래내역 등)이 완비되어 있는가?",
+      "judge_criteria": "증빙 목록 완비 (출처: 업무가이드 §4-1)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 19,
+      "category": "증빙 유효성",
+      "item_content": "간이영수증의 경우 법정 한도액(건당 3만원) 이내인가?",
+      "judge_criteria": "간이영수증 한도 (출처: 업무가이드 §4-2)",
+      "law_ref": "소득세법 시행령",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 20,
+      "category": "증빙 적정성",
+      "item_content": "현금 지출 시 영수증·수령인 확인 서류가 구비되어 있는가?",
+      "judge_criteria": "현금 지출 증빙 (출처: 업무가이드 §8)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 21,
+      "category": "원천징수",
+      "item_content": "강사료·원고료 등에 대해 소득세 원천징수(3.3%/8.8%)를 이행하였는가? (사례 15)",
+      "judge_criteria": "원천징수 이행 (출처: 충남감사사례 사례15·원천징수)",
+      "law_ref": "소득세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 22,
+      "category": "증빙 적정성",
+      "item_content": "인건비·사무실 임차료 지급이 근로계약서·임대차 계약 및 실제 근무와 일치하는가? (사례 19)",
+      "judge_criteria": "인건비·임차 증빙 (출처: 충남감사사례 사례19·인건비)",
+      "law_ref": "보조금 관리지침",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 23,
+      "category": "증빙 완전성",
+      "item_content": "지출증빙(세금계산서·영수증·카드전표·계약서)이 빠짐없이 구비되어 있는가?",
+      "judge_criteria": "증빙 완비 (출처: 충남감사사례 사례16·증빙미비)",
+      "law_ref": "충남 업무운영지침",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 24,
+      "category": "허위 증빙",
+      "item_content": "허위·변조 근로계약서 또는 근무일지로 인건비를 청구하지 않았는가?",
+      "judge_criteria": "근로계약·일지 대조 (출처: 충남감사사례 사례17·허위계약)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 25,
+      "category": "중복 증빙",
+      "item_content": "동일 영수증·증빙을 타 기관·타 사업에 중복 제출하여 이중수령하지 않았는가?",
+      "judge_criteria": "이중수령·중복증빙 (출처: 충남감사사례 사례18·이중수령)",
+      "law_ref": "지방자치단체 보조금 관리에 관한 법률 제6조",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 26,
+      "category": "중복 증빙",
+      "item_content": "타 기관(해설사·강사 활동비 등)과 근무일이 중복되는 인건비를 이중 지급하지 않았는가?",
+      "judge_criteria": "인건비 이중지급 (출처: 충남감사사례 사례19·인건비중복)",
+      "law_ref": "보조금 관리지침",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 27,
+      "category": "증빙 유효성",
+      "item_content": "전자세금계산서·보조금 전용카드 결제 원칙을 준수하였는가?",
+      "judge_criteria": "전자증빙·카드 (출처: 충남감사사례 사례20·전자증빙)",
+      "law_ref": "충남 업무운영지침 제11조",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 28,
+      "category": "증빙 대조",
+      "item_content": "계좌 거래내역과 지출결의서(건별 일자·금액)가 일치하는가?",
+      "judge_criteria": "계좌-결의서 대조 (출처: 충남감사사례 사례21·대조)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 29,
+      "category": "원천징수",
+      "item_content": "경품·강사료 지급 시 소득세 원천징수를 이행하였는가?",
+      "judge_criteria": "경품·강사 원천징수 (출처: 민간행사감사 처분6·14)",
+      "law_ref": "소득세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 30,
+      "category": "증빙 완전성",
+      "item_content": "자부담금 예치 및 지출 증빙서류를 교부 전·집행 시 확인하였는가?",
+      "judge_criteria": "자부담·증빙 확인 (출처: 민간행사감사 처분11·12)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 31,
+      "category": "증빙 적정성",
+      "item_content": "보조금으로 구입한 온누리상품권을 별도 관리·정산하였는가?",
+      "judge_criteria": "상품권 관리 (출처: 민간행사감사 처분5)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 32,
+      "category": "증빙 대조",
+      "item_content": "보조금 전용통장 입출금 내역과 지출결의서가 일치하는가?",
+      "judge_criteria": "전용통장-결의서 대조 (출처: 민간행사감사 처분8·9)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 33,
+      "category": "증빙 유효성",
+      "item_content": "경품 수령자 기타소득세 납부 증빙이 구비되어 있는가?",
+      "judge_criteria": "기타소득세 납부 (출처: 민간행사감사 처분14)",
+      "law_ref": "소득세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 34,
+      "category": "증빙 완전성",
+      "item_content": "인건비 지급 시 근로계약서와 실제 지급 내역이 일치하는가?",
+      "judge_criteria": "근로계약-지급 대조 (출처: 민간행사감사 처분13)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 35,
+      "category": "증빙 완전성",
+      "item_content": "강사비 지출 시 강의 확인서·참석자 명단이 구비되어 있는가?",
+      "judge_criteria": "강사비 증빙 (출처: 2024종합감사 지적15)",
+      "law_ref": "강북구 지방보조금 관리지침",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 36,
+      "category": "증빙 완전성",
+      "item_content": "물품구입 시 견적서·비교견적서·물품사진·배부계획서가 첨부되어 있는가?",
+      "judge_criteria": "물품구입 증빙 (출처: 2024종합감사 지적15)",
+      "law_ref": "강북구 지방보조금 관리지침",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 37,
+      "category": "원천징수",
+      "item_content": "강사비 지급 시 소득세법에 따른 원천징수를 실시하였는가?",
+      "judge_criteria": "강사료 원천징수 (출처: 2024종합감사 지적15)",
+      "law_ref": "소득세법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 38,
+      "category": "증빙 완전성",
+      "item_content": "200만 원 이상 지출 시 표준계약서 및 상세 내역이 구비되어 있는가?",
+      "judge_criteria": "표준계약서 (출처: 2024종합감사 지적15)",
+      "law_ref": "지방계약법",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 39,
+      "category": "증빙 완전성",
+      "item_content": "보조금 회계관련 서류(결의서·카드전표·세금계산서)를 5년간 보관하고 있는가?",
+      "judge_criteria": "증빙 5년 보관 (출처: 감사사례집 회계서류보관)",
+      "law_ref": "지방자치단체 회계관리 훈령 제112조",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 40,
+      "category": "증빙 완전성",
+      "item_content": "자체예산 지출 시 내부결재·지출결의서·입금증 등 증빙이 구비되어 있는가?",
+      "judge_criteria": "자체예산 증빙 (출처: 감사사례집 자체예산증빙)",
+      "law_ref": "지방자치단체 회계관리 훈령",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 41,
+      "category": "증빙 완전성",
+      "item_content": "세입·세출 시 수입·지출결의서와 카드전표·이체확인증을 사업별 편철하였는가?",
+      "judge_criteria": "결의서·전표 편철 (출처: 감사사례집 회계서류)",
+      "law_ref": "지방보조금 관리기준",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 42,
+      "category": "증빙 적정성",
+      "item_content": "예산과목을 구분하여 세입·세출을 관리하고 있는가?",
+      "judge_criteria": "예산과목 구분 (출처: 감사사례집 예산과목)",
+      "law_ref": "지방자치단체 회계관리 훈령",
+      "risk_level": "M"
+    }
+  ]
+}

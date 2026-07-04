@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+{% block title %}지식DB 관리{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">지식DB 관리</h4>
+        <p class="text-muted small mb-0">공개자료 폴더: {{ knowledge_dir }}</p>
+    </div>
+    <a href="/checklist" class="btn btn-sm btn-outline-primary">체크리스트 관리</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card p-3 h-100">
+            <h6 class="fw-semibold mb-3">파일 업로드</h6>
+            <div class="drop-zone mb-3" id="knowledge-drop-zone">
+                <div class="fs-4 mb-2">📁</div>
+                <p class="mb-1 small">드래그하거나 클릭하여 업로드</p>
+                <small class="text-muted">허용: {{ allowed_ext }} (최대 50MB)</small>
+                <input type="file" id="knowledge-file-input" class="d-none"
+                       accept=".pdf,.hwp,.hwpx,.docx,.txt">
+            </div>
+            <div id="upload-result" class="alert alert-success d-none small mb-0"></div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold mb-0">등록 파일 <span class="badge bg-primary" id="file-count">0</span></h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="loadFiles()">새로고침</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>파일명</th>
+                            <th class="text-end">크기</th>
+                            <th class="text-end">수정일</th>
+                            <th class="text-center" style="min-width:120px">상태</th>
+                            <th class="text-end" style="min-width:240px">작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="file-table-body">
+                        <tr><td colspan="5" class="text-center text-muted py-4">로딩 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-3 mb-0">
+                PDF 상태:
+                <span class="badge bg-success">생성</span> 처음 생성,
+                <span class="badge bg-warning text-dark">재생성</span> 기생성,
+                <span class="badge bg-secondary">체크리스트 없음</span> 추출 항목 없음,
+                <span class="badge bg-light text-dark border">대상 아님</span> PDF 외 형식
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- 지식DB → 체크리스트 생성/재생성 모달 -->
+<div class="modal fade" id="knowledgeGenerateModal" tabindex="-1"
+     aria-labelledby="knowledgeGenerateModalLabel" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="kg-modal-title">체크리스트 생성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="kg-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="kg-form-fields">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">참조 파일</label>
+                        <input type="text" class="form-control bg-light" id="kg-filename" readonly>
+                    </div>
+
+                    <div class="alert alert-warning d-none" id="kg-regen-warning">
+                        <strong>재생성 안내</strong><br>
+                        기존 체크리스트 "<span id="kg-existing-nm"></span>"이
+                        <strong>비활성화</strong>됩니다.<br>
+                        데이터는 삭제되지 않으며, 체크리스트 관리에서 복원할 수 있습니다.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">자료유형 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="kg-data-type">
+                            {% for k, v in data_types.items() %}
+                            <option value="{{ k }}">{{ loop.index }}. {{ v }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">체크리스트 이름</label>
+                        <input type="text" class="form-control" id="kg-checklist-nm"
+                               placeholder="비워두면 Gemini가 자동으로 이름을 결정합니다">
+                    </div>
+
+                    <div class="alert alert-info small mb-0">
+                        <strong>보안:</strong> PDF 텍스트(최대 5,000자)가 Google Gemini로
+                        전송됩니다. <strong>공개자료 파일만 사용하세요.</strong>
+                        생성에는 30초~2분 정도 소요될 수 있습니다.
+                    </div>
+                </div>
+
+                <div id="kg-progress-panel" class="d-none text-center py-3">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p id="kg-progress-message" class="fw-semibold text-primary mb-3">
+                        Gemini를 통해 체크리스트 작성 중...
+                    </p>
+                    <div class="progress mb-2" style="height:24px">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                             style="width:100%"></div>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        30초~2분 정도 소요될 수 있습니다. 창을 닫지 마세요.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="kg-cancel-btn">취소</button>
+                <button type="button" class="btn btn-primary" id="btn-kg-generate"
+                        onclick="generateFromKnowledge()">Gemini로 생성</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kg-success-banner" class="alert alert-success d-none mt-3" role="alert"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let _kgIsRegenerate = false;
+
+function formatDate(ts) {
+    if (!ts) return '-';
+    const d = new Date(ts * 1000);
+    return d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function jsQuote(s) {
+    return JSON.stringify(String(s));
+}
+
+const KG_STATUS_BADGES = {
+    not_applicable: { label: '대상 아님', cls: 'bg-light text-dark border' },
+    pending: { label: '생성', cls: 'bg-success' },
+    ready: { label: '재생성', cls: 'bg-warning text-dark' },
+    empty: { label: '체크리스트 없음', cls: 'bg-secondary' },
+};
+
+function renderStatusBadge(status, label) {
+    const meta = KG_STATUS_BADGES[status] || { label: label || '-', cls: 'bg-light text-dark' };
+    const title = status === 'ready' && label ? '' : '';
+    return `<span class="badge ${meta.cls}" title="${escapeHtml(title)}">${escapeHtml(meta.label)}</span>`;
+}
+
+function renderFileRows(files) {
+    const tbody = document.getElementById('file-table-body');
+    document.getElementById('file-count').textContent = files.length;
+    if (!files.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">등록된 파일이 없습니다.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = files.map(f => {
+        const status = f.checklist_status || 'not_applicable';
+        const statusLabel = f.status_label || KG_STATUS_BADGES[status]?.label || '-';
+        const statusHtml = renderStatusBadge(status, statusLabel);
+
+        let btnHtml = '';
+        if (status === 'pending') {
+            const fnAttr = escapeHtml(f.filename);
+            btnHtml = `<button type="button" class="btn btn-sm btn-success me-1"
+                data-kg-action="generate" data-filename="${fnAttr}"
+                data-regenerate="0" data-checklist-nm=""
+                title="이 PDF로 Gemini 체크리스트를 생성합니다">생성</button>`;
+        } else if (status === 'ready' || status === 'empty') {
+            const fnAttr = escapeHtml(f.filename);
+            const nmAttr = escapeHtml(f.checklist_nm || '');
+            btnHtml = `<button type="button" class="btn btn-sm btn-warning me-1"
+                data-kg-action="generate" data-filename="${fnAttr}"
+                data-regenerate="1" data-checklist-nm="${nmAttr}"
+                title="Gemini로 체크리스트를 다시 생성합니다">재생성</button>`;
+        }
+
+        return `
+        <tr data-filename="${escapeHtml(f.filename)}">
+            <td>
+                <span class="badge bg-light text-dark me-1">${escapeHtml(f.ext)}</span>
+                ${escapeHtml(f.filename)}
+            </td>
+            <td class="text-end text-muted">${f.size_kb} KB</td>
+            <td class="text-end text-muted small">${formatDate(f.modified)}</td>
+            <td class="text-center">${statusHtml}</td>
+            <td class="text-end text-nowrap">
+                ${btnHtml}
+                <a class="btn btn-sm btn-outline-secondary me-1"
+                   href="/knowledge/api/files/${encodeURIComponent(f.filename)}/download">다운로드</a>
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        data-kg-action="delete" data-filename="${escapeHtml(f.filename)}">삭제</button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function loadFiles() {
+    showLoading(true);
+    try {
+        const data = await apiFetch('/knowledge/api/files');
+        if (data.success) renderFileRows(data.files || []);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    showLoading(true);
+    try {
+        const res = await fetch('/knowledge/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        const box = document.getElementById('upload-result');
+        box.classList.remove('d-none', 'alert-danger');
+        box.classList.add('alert-success');
+        box.textContent = data.message;
+        showToast(data.message);
+        await loadFiles();
+    } catch (err) {
+        const box = document.getElementById('upload-result');
+        box.classList.remove('d-none', 'alert-success');
+        box.classList.add('alert-danger');
+        box.textContent = err.message;
+        showToast(err.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function deleteFile(filename) {
+    if (!confirm(`'${filename}' 파일을 삭제하시겠습니까?`)) return;
+    showLoading(true);
+    try {
+        const data = await apiFetch(`/knowledge/api/files/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        if (data.success) {
+            showToast(data.message);
+            await loadFiles();
+        } else {
+            showToast(data.message || '삭제 실패', 'error');
+        }
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showKgProgress(show, message) {
+    const formEl = document.getElementById('kg-form-fields');
+    const panelEl = document.getElementById('kg-progress-panel');
+    const msgEl = document.getElementById('kg-progress-message');
+    if (formEl) formEl.classList.toggle('d-none', show);
+    if (panelEl) panelEl.classList.toggle('d-none', !show);
+    if (msgEl && message) msgEl.textContent = message;
+}
+
+function setGenerateModalBusy(busy) {
+    const btn = document.getElementById('btn-kg-generate');
+    const closeBtn = document.getElementById('kg-modal-close');
+    const cancelBtn = document.getElementById('kg-cancel-btn');
+    btn.disabled = busy;
+    closeBtn.disabled = busy;
+    cancelBtn.disabled = busy;
+    if (busy) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>처리 중...';
+    } else {
+        btn.textContent = _kgIsRegenerate ? '재생성' : 'Gemini로 생성';
+    }
+}
+
+function openGenerateModal(filename, isRegenerate, existingNm) {
+    _kgIsRegenerate = isRegenerate;
+    document.getElementById('kg-filename').value = filename;
+
+    const baseName = filename.replace(/\.[^.]+$/, '');
+    const suffix = isRegenerate ? ' 기반 체크리스트 (재생성)' : ' 기반 체크리스트';
+    document.getElementById('kg-checklist-nm').value = baseName + suffix;
+
+    document.getElementById('kg-modal-title').textContent =
+        isRegenerate ? '체크리스트 재생성' : '체크리스트 생성';
+
+    const warningEl = document.getElementById('kg-regen-warning');
+    const btn = document.getElementById('btn-kg-generate');
+    if (isRegenerate) {
+        document.getElementById('kg-existing-nm').textContent = existingNm || '(이름 없음)';
+        warningEl.classList.remove('d-none');
+        btn.className = 'btn btn-warning';
+        btn.textContent = '재생성';
+    } else {
+        warningEl.classList.add('d-none');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Gemini로 생성';
+    }
+
+    showKgProgress(false);
+    setGenerateModalBusy(false);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('knowledgeGenerateModal')).show();
+}
+
+async function generateFromKnowledge() {
+    const filename = document.getElementById('kg-filename').value;
+    const dataType = document.getElementById('kg-data-type').value;
+    const checklistNm = document.getElementById('kg-checklist-nm').value.trim();
+
+    if (!filename) {
+        showToast('파일이 선택되지 않았습니다.', 'warn');
+        return;
+    }
+
+    const progressMsg = 'Gemini를 통해 체크리스트 작성 중...';
+    setGenerateModalBusy(true);
+    showKgProgress(true, progressMsg);
+    showLoading(true, progressMsg);
+
+    try {
+        const data = await apiFetch('/checklist/api/generate-from-knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data_type: dataType,
+                checklist_nm: checklistNm || null,
+                pdf_filenames: [filename],
+                regenerate: _kgIsRegenerate,
+            }),
+        });
+
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('knowledgeGenerateModal')).hide();
+
+            if (data.empty) {
+                showToast(data.message || '추출할 체크리스트 항목이 없습니다.', 'warn');
+                await loadFiles();
+                return;
+            }
+
+            const action = _kgIsRegenerate ? '재생성' : '생성';
+            showToast(`체크리스트 ${action} 완료 (${data.item_cnt}항목)`);
+
+            const goNow = confirm(
+                `체크리스트 ${action} 완료!\n` +
+                `이름: ${data.checklist_nm}\n` +
+                `항목 수: ${data.item_cnt}개\n\n` +
+                `체크리스트 관리 화면으로 이동하시겠습니까?`
+            );
+            if (goNow) {
+                window.location.href = '/checklist';
+            } else {
+                await loadFiles();
+            }
+        } else {
+            showToast(data.message || '처리 실패', 'error');
+        }
+    } catch (err) {
+        showToast(err.message || '오류 발생', 'error');
+    } finally {
+        showKgProgress(false);
+        setGenerateModalBusy(false);
+        showLoading(false);
+    }
+}
+
+document.getElementById('file-table-body').addEventListener('click', (e) => {
+    const genBtn = e.target.closest('[data-kg-action="generate"]');
+    if (genBtn) {
+        e.preventDefault();
+        openGenerateModal(
+            genBtn.getAttribute('data-filename') || '',
+            genBtn.getAttribute('data-regenerate') === '1',
+            genBtn.getAttribute('data-checklist-nm') || ''
+        );
+        return;
+    }
+    const delBtn = e.target.closest('[data-kg-action="delete"]');
+    if (delBtn) {
+        e.preventDefault();
+        deleteFile(delBtn.getAttribute('data-filename') || '');
+    }
+});
+
+const dropZone = document.getElementById('knowledge-drop-zone');
+const fileInput = document.getElementById('knowledge-file-input');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+    if (e.target.files.length) uploadFile(e.target.files[0]);
+    e.target.value = '';
+});
+
+loadFiles();
+</script>
+{% endblock %}

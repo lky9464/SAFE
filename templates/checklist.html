@@ -1,0 +1,430 @@
+{% extends "base.html" %}
+{% block title %}체크리스트 관리{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">체크리스트 관리</h4>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a href="/knowledge" class="btn btn-sm btn-outline-info">지식DB</a>
+        <a href="/guide?guide=work" class="btn btn-sm btn-outline-primary">업무 가이드</a>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                감사사례 가이드
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/guide?guide=chungnam">충청남도 감사사례</a></li>
+                <li><a class="dropdown-item" href="/guide?guide=event">민간행사보조금 특정감사</a></li>
+                <li><a class="dropdown-item" href="/guide?guide=gangbuk">자치행정과 종합감사</a></li>
+                <li><a class="dropdown-item" href="/guide?guide=sports">감사사례집 (체육단체)</a></li>
+            </ul>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                + 새 생성
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createEmptyModal">빈 체크리스트 (수동 구성)</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#generateModal">Gemini API 생성</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#knowledgeGenerateModal">지식DB 기반 생성</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="panel-left">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                <strong>체크리스트 목록</strong>
+                <small class="text-muted">비활성 포함</small>
+            </div>
+            <div id="checklist-list">
+                {% for cl in checklists %}
+                <div class="checklist-item {% if cl.use_yn != 'Y' %}checklist-inactive{% endif %}"
+                     data-id="{{ cl.checklist_id }}" data-use-yn="{{ cl.use_yn }}"
+                     onclick="loadChecklist({{ cl.checklist_id }})">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="fw-semibold">{{ cl.data_type_nm }}</div>
+                        {% if cl.use_yn == 'Y' %}
+                        <span class="badge bg-success">활성</span>
+                        {% else %}
+                        <span class="badge bg-secondary">비활성</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted">{{ cl.checklist_nm }} ({{ cl.item_cnt }}항목)</small>
+                </div>
+                {% else %}
+                <div class="p-3 text-muted text-center">등록된 체크리스트가 없습니다.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="panel-right p-3" id="detail-panel">
+            <p class="text-muted text-center mt-5">좌측에서 체크리스트를 선택하세요.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Gemini 생성 모달 -->
+<div class="modal fade" id="generateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gemini API 체크리스트 생성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">자료유형</label>
+                    <select class="form-select" id="gen-data-type">
+                        {% for k, v in data_types.items() %}
+                        <option value="{{ k }}">{{ loop.index }}. {{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="alert alert-warning small mb-0">
+                    Gemini API 호출 (지식DB 공개자료만 사용) — 로컬 저장
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-primary" id="btn-generate" onclick="generateChecklist()">생성 시작</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 빈 체크리스트 생성 모달 -->
+<div class="modal fade" id="createEmptyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">빈 체크리스트 생성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">체크리스트 이름 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="new_checklist_nm" placeholder="예: 2025년 행사보조금 특별점검">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">자료유형</label>
+                    <select class="form-select" id="new_data_type">
+                        {% for k, v in data_types.items() %}
+                        <option value="{{ k }}">{{ loop.index }}. {{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">근거 법령</label>
+                    <input type="text" class="form-control" id="new_base_law"
+                           value="지방자치단체 보조금 관리에 관한 법률">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-primary" onclick="createEmpty()">생성</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 지식DB 기반 생성 모달 -->
+<div class="modal fade" id="knowledgeGenerateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">지식DB 기반 체크리스트 생성</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">자료유형</label>
+                    <select class="form-select" id="kg-data-type">
+                        {% for k, v in data_types.items() %}
+                        <option value="{{ k }}">{{ loop.index }}. {{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">체크리스트 이름 (선택)</label>
+                    <input type="text" class="form-control" id="kg-checklist-nm" placeholder="미입력 시 자동 생성">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">참조 PDF (선택, 복수)</label>
+                    <select class="form-select" id="kg-pdf-files" multiple size="5">
+                        <option value="">— 전체 PDF 자동 선택 —</option>
+                    </select>
+                    <small class="text-muted">선택하지 않으면 지식DB의 PDF 전체를 참조합니다.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-primary" id="btn-kg-generate" onclick="generateFromKnowledge()">생성 시작</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 항목 추가 모달 -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">점검 항목 추가</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">분류</label>
+                        <input type="text" class="form-control" id="new_category" placeholder="예: 집행기준">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">위험도</label>
+                        <select class="form-select" id="new_risk_level">
+                            <option value="H">H</option>
+                            <option value="M" selected>M</option>
+                            <option value="L">L</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">점검 항목 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="new_item_content"
+                               placeholder="예: 보조금 집행 후 30일 이내 정산보고서 제출 여부">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">판단 기준</label>
+                        <input type="text" class="form-control" id="new_judge_criteria">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">관련 법령</label>
+                        <input type="text" class="form-control" id="new_law_ref">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-primary" onclick="addItem()">추가</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentChecklistId = null;
+let currentUseYn = 'Y';
+
+async function loadChecklist(id) {
+    currentChecklistId = id;
+    document.querySelectorAll('.checklist-item').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.id) === id);
+        if (parseInt(el.dataset.id) === id) currentUseYn = el.dataset.useYn || 'Y';
+    });
+    showLoading(true);
+    try {
+        const data = await apiFetch(`/checklist/api/${id}`);
+        renderDetail(data);
+    } finally {
+        showLoading(false);
+    }
+}
+
+function renderDetail(data) {
+    const useYn = data.use_yn || currentUseYn;
+    let rows = '';
+    (data.items || []).forEach(item => {
+        const content = item.item_content || '';
+        const short = content.length > 50 ? content.substring(0, 50) + '…' : content;
+        rows += `<tr>
+            <td>${item.item_no}</td>
+            <td>${item.category || ''}</td>
+            <td title="${content.replace(/"/g, '&quot;')}">${short}</td>
+            <td>${riskBadge(item.risk_level)}</td>
+            <td><small>${item.law_ref || ''}</small></td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteItem(${item.item_id})">삭제</button>
+            </td>
+        </tr>`;
+    });
+    const statusBadge = useYn === 'Y'
+        ? '<span class="badge bg-success">활성</span>'
+        : '<span class="badge bg-secondary">비활성</span>';
+    const toggleLabel = useYn === 'Y' ? '비활성화' : '활성화';
+    document.getElementById('detail-panel').innerHTML = `
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h5 class="mb-1">${data.checklist_nm} ${statusBadge}</h5>
+                <p class="text-muted mb-0">${data.data_type_nm} | ${data.item_cnt}항목 | ${data.base_law || ''}</p>
+            </div>
+            <button class="btn btn-sm btn-outline-warning"
+                    onclick="toggleActive(${data.checklist_id}, '${useYn}')">${toggleLabel}</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead><tr>
+                    <th>No</th><th>분류</th><th>점검항목</th><th>위험도</th><th>법령</th><th></th>
+                </tr></thead>
+                <tbody>${rows || '<tr><td colspan="6" class="text-muted text-center">항목이 없습니다. 아래에서 추가하세요.</td></tr>'}</tbody>
+            </table>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">+ 항목 추가</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteChecklist(${data.checklist_id})">체크리스트 삭제</button>
+        </div>`;
+}
+
+async function toggleActive(id, currentYn) {
+    const newYn = currentYn === 'Y' ? 'N' : 'Y';
+    const data = await apiFetch(`/checklist/api/${id}/toggle-active`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ use_yn: newYn }),
+    });
+    if (data.success) {
+        showToast(data.message);
+        location.reload();
+    } else {
+        showToast(data.message || '전환 실패', 'error');
+    }
+}
+
+async function addItem() {
+    if (!currentChecklistId) return;
+    const content = document.getElementById('new_item_content').value.trim();
+    if (!content) {
+        showToast('점검 항목을 입력하세요.', 'warn');
+        return;
+    }
+    const body = {
+        category: document.getElementById('new_category').value,
+        item_content: content,
+        judge_criteria: document.getElementById('new_judge_criteria').value,
+        law_ref: document.getElementById('new_law_ref').value,
+        risk_level: document.getElementById('new_risk_level').value,
+    };
+    const data = await apiFetch(`/checklist/api/${currentChecklistId}/item`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+    if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide();
+        showToast(data.message);
+        await loadChecklist(currentChecklistId);
+        location.reload();
+    }
+}
+
+async function deleteItem(itemId) {
+    if (!currentChecklistId || !confirm('이 항목을 삭제하시겠습니까?')) return;
+    const data = await apiFetch(`/checklist/api/${currentChecklistId}/item/${itemId}`, { method: 'DELETE' });
+    if (data.success) {
+        showToast('항목 삭제 완료');
+        await loadChecklist(currentChecklistId);
+        location.reload();
+    }
+}
+
+async function createEmpty() {
+    const nm = document.getElementById('new_checklist_nm').value.trim();
+    if (!nm) {
+        showToast('체크리스트 이름을 입력하세요.', 'warn');
+        return;
+    }
+    const body = {
+        checklist_nm: nm,
+        data_type: document.getElementById('new_data_type').value,
+        base_law: document.getElementById('new_base_law').value,
+    };
+    const data = await apiFetch('/checklist/api/create-empty', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+    if (data.success) {
+        showToast(data.message);
+        location.href = `/checklist`;
+    }
+}
+
+async function generateChecklist() {
+    const dataType = document.getElementById('gen-data-type').value;
+    const btn = document.getElementById('btn-generate');
+    btn.disabled = true;
+    btn.textContent = '생성 중...';
+    showLoading(true);
+    try {
+        const res = await apiFetch('/checklist/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data_type: dataType }),
+        });
+        if (res.success) {
+            showToast('체크리스트 생성 완료');
+            location.reload();
+        }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '생성 시작';
+        showLoading(false);
+    }
+}
+
+async function loadKnowledgePdfs() {
+    const sel = document.getElementById('kg-pdf-files');
+    try {
+        const data = await apiFetch('/knowledge/api/files');
+        const pdfs = (data.files || []).filter(f => f.ext === '.pdf');
+        sel.innerHTML = pdfs.length
+            ? pdfs.map(f => `<option value="${f.filename}">${f.filename}</option>`).join('')
+            : '<option value="" disabled>지식DB에 PDF가 없습니다</option>';
+    } catch (_) {
+        sel.innerHTML = '<option value="" disabled>목록을 불러올 수 없습니다</option>';
+    }
+}
+
+document.getElementById('knowledgeGenerateModal').addEventListener('show.bs.modal', loadKnowledgePdfs);
+
+async function generateFromKnowledge() {
+    const btn = document.getElementById('btn-kg-generate');
+    btn.disabled = true;
+    showLoading(true);
+    try {
+        const sel = document.getElementById('kg-pdf-files');
+        const selected = Array.from(sel.selectedOptions).map(o => o.value).filter(Boolean);
+        const body = {
+            data_type: document.getElementById('kg-data-type').value,
+            checklist_nm: document.getElementById('kg-checklist-nm').value || null,
+            pdf_filenames: selected.length ? selected : null,
+        };
+        const res = await apiFetch('/checklist/api/generate-from-knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        if (res.success) {
+            showToast(res.message || '생성 완료');
+            location.reload();
+        }
+    } finally {
+        btn.disabled = false;
+        showLoading(false);
+    }
+}
+
+async function deleteChecklist(id) {
+    if (!confirm('체크리스트를 삭제하시겠습니까?')) return;
+    const res = await apiFetch(`/checklist/api/${id}`, { method: 'DELETE' });
+    if (res.success) { showToast('삭제 완료'); location.reload(); }
+}
+
+{% if checklists %}
+loadChecklist({{ checklists[0].checklist_id }});
+{% endif %}
+</script>
+{% endblock %}

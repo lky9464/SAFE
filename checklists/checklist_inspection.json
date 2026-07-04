@@ -1,0 +1,392 @@
+{
+  "checklist_nm": "지방보조금 부정수급 일제점검 체크리스트 (47항목)",
+  "data_type": "0",
+  "base_law": "지방보조금 부정수급 일제점검 실시계획",
+  "created_at": "2026-07-04",
+  "items": [
+    {
+      "item_no": 1,
+      "category": "공통",
+      "item_content": "승인 사업계획 비목별 vs 실제 집행내역 비교",
+      "judge_criteria": "구비: ①,②",
+      "law_ref": "JC-01",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 2,
+      "category": "공통",
+      "item_content": "집행 건별 내용이 비목에 적정한지",
+      "judge_criteria": "구비: ②",
+      "law_ref": "JC-02",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 3,
+      "category": "공통",
+      "item_content": "지출결의서 작성·대표자 결재 후 지출",
+      "judge_criteria": "구비: ②,③ | 점검서류: 지출결의서",
+      "law_ref": "JC-03",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 4,
+      "category": "공통",
+      "item_content": "운영비 교부 시 시행령 제3조 비목만 지출",
+      "judge_criteria": "구비: ② | N/A: 운영비 교부 사업만",
+      "law_ref": "JC-04",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 5,
+      "category": "공통",
+      "item_content": "교부 결정 이전 집행(승인 여부)",
+      "judge_criteria": "구비: ②,③",
+      "law_ref": "JC-05",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 6,
+      "category": "공통",
+      "item_content": "전용통장·전용카드 준수",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계좌·카드내역",
+      "law_ref": "JC-06",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 7,
+      "category": "공통",
+      "item_content": "자기부담금 비율 준수",
+      "judge_criteria": "구비: ①,④",
+      "law_ref": "JC-07",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 8,
+      "category": "공통",
+      "item_content": "변경·이월 지자체장 승인 준수",
+      "judge_criteria": "구비: ②",
+      "law_ref": "JC-08",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 9,
+      "category": "공통",
+      "item_content": "사업기간 종료 후 집행, 증빙 미비·위조",
+      "judge_criteria": "구비: ②,③ | 점검서류: 증빙서류",
+      "law_ref": "JC-09",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 10,
+      "category": "인건비",
+      "item_content": "참여인력 현황표(성명·기간·참여율·변경)",
+      "judge_criteria": "구비: ②,③ | 점검서류: 참여인력현황표 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 11,
+      "category": "인건비",
+      "item_content": "급여대장·원천징수·계좌이체 증빙",
+      "judge_criteria": "구비: ③ | 점검서류: 급여대장,원천징수영수증 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 12,
+      "category": "인건비",
+      "item_content": "비상근·명예직 인건비 지급",
+      "judge_criteria": "구비: ②,③ | 점검서류: 급여대장,계약서 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 13,
+      "category": "인건비",
+      "item_content": "허위인력·이중취업·건강보험 대조",
+      "judge_criteria": "구비: ③ | 점검서류: 건강보험가입내역 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-04",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 14,
+      "category": "인건비",
+      "item_content": "가족관계 참여인력 근로계약·실경력",
+      "judge_criteria": "구비: ③ | 점검서류: 근로계약서,자격득실 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-05",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 15,
+      "category": "인건비",
+      "item_content": "동일 사업자 다건 사업 참여율",
+      "judge_criteria": "구비: ②,③ | 점검서류: 참여인력현황표 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-06",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 16,
+      "category": "인건비",
+      "item_content": "업무외 국외 출근자 인건비",
+      "judge_criteria": "구비: ②,③ | 점검서류: 근태·출장증빙 | N/A: ② 101 집행건 없음",
+      "law_ref": "J101-07",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 17,
+      "category": "일반운영비",
+      "item_content": "품의서(사용목적·결재)",
+      "judge_criteria": "구비: ③ | 점검서류: 품의서,결재서류 | N/A: ② 201-01 집행 없음",
+      "law_ref": "J20101-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 18,
+      "category": "일반운영비",
+      "item_content": "세금계산서·카드전표·거래명세",
+      "judge_criteria": "구비: ③ | 점검서류: 세금계산서,카드전표 | N/A: ② 201-01 집행 없음",
+      "law_ref": "J20101-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 19,
+      "category": "일반운영비",
+      "item_content": "특근매식비 규정 준수",
+      "judge_criteria": "구비: ③ | 점검서류: 급량비규정 | N/A: ② 201-01 집행 없음",
+      "law_ref": "J20101-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 20,
+      "category": "일반운영비",
+      "item_content": "일반수용비·피복비·급량비 과다",
+      "judge_criteria": "구비: ③ | 점검서류: 각 증빙 | N/A: ② 201-01 집행 없음",
+      "law_ref": "J20101-04",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 21,
+      "category": "일반운영비",
+      "item_content": "강사이력서·강의일지",
+      "judge_criteria": "구비: ③ | 점검서류: 강사이력서,강의일지 | N/A: ② 201-32 집행 없음",
+      "law_ref": "J20132-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 22,
+      "category": "일반운영비",
+      "item_content": "강사료·수당 원천징수·납부",
+      "judge_criteria": "구비: ③ | 점검서류: 원천징수영수증 | N/A: ② 201-32 집행 없음",
+      "law_ref": "J20132-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 23,
+      "category": "일반운영비",
+      "item_content": "허위 강의실적·무자격 강사",
+      "judge_criteria": "구비: ③ | 점검서류: 강사이력서,자격증 | N/A: ② 201-32 집행 없음",
+      "law_ref": "J20132-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 24,
+      "category": "일반운영비",
+      "item_content": "임차 품의·산출내역",
+      "judge_criteria": "구비: ③ | 점검서류: 품의서 | N/A: ② 201-33 집행 없음",
+      "law_ref": "J20133-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 25,
+      "category": "일반운영비",
+      "item_content": "임차 집행증빙",
+      "judge_criteria": "구비: ③ | 점검서류: 세금계산서,카드전표 | N/A: ② 201-33 집행 없음",
+      "law_ref": "J20133-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 26,
+      "category": "일반운영비",
+      "item_content": "임차계약 지방계약법",
+      "judge_criteria": "구비: ②,③ | 점검서류: 임대차계약서 | N/A: ② 201-33 집행 없음",
+      "law_ref": "J20133-03",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 27,
+      "category": "일반운영비",
+      "item_content": "용역 계약·과업지시서·수의승인",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약서,과업지시서 | N/A: ② 201-34 집행 없음",
+      "law_ref": "J20134-01",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 28,
+      "category": "일반운영비",
+      "item_content": "준공검사·검수조서",
+      "judge_criteria": "구비: ③ | 점검서류: 검수조서,완료보고 | N/A: ② 201-34 집행 없음",
+      "law_ref": "J20134-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 29,
+      "category": "일반운영비",
+      "item_content": "용역계약 지방계약법",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약서,입찰서류 | N/A: ② 201-34 집행 없음",
+      "law_ref": "J20134-03",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 30,
+      "category": "일반운영비",
+      "item_content": "공공운영비 품의·집행증빙",
+      "judge_criteria": "구비: ③ | 점검서류: 품의서,납입고지서 | N/A: ② 201-02 집행 없음",
+      "law_ref": "J20102-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 31,
+      "category": "일반운영비",
+      "item_content": "당해 사업 직접 소요·법령 근거",
+      "judge_criteria": "구비: ②,③ | 점검서류: 품의서,증빙 | N/A: ② 201-02 집행 없음",
+      "law_ref": "J20102-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 32,
+      "category": "여비",
+      "item_content": "국내여비 품의·산출",
+      "judge_criteria": "구비: ③ | 점검서류: 품의서,여비산출 | N/A: ② 202-01 집행 없음",
+      "law_ref": "J20201-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 33,
+      "category": "여비",
+      "item_content": "교통·숙박·식대 증빙",
+      "judge_criteria": "구비: ③ | 점검서류: 카드전표,영수증 | N/A: ② 202-01 집행 없음",
+      "law_ref": "J20201-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 34,
+      "category": "여비",
+      "item_content": "여비 지급단가 준수",
+      "judge_criteria": "구비: ②,③ | 점검서류: 여비규정 | N/A: ② 202-01 집행 없음",
+      "law_ref": "J20201-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 35,
+      "category": "여비",
+      "item_content": "국외여비 품의·결과보고",
+      "judge_criteria": "구비: ③ | 점검서류: 품의서,결과보고 | N/A: ② 202-03 집행 없음",
+      "law_ref": "J20203-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 36,
+      "category": "여비",
+      "item_content": "항공·보험·숙박 invoice",
+      "judge_criteria": "구비: ③ | 점검서류: 집행증빙 | N/A: ② 202-03 집행 없음",
+      "law_ref": "J20203-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 37,
+      "category": "여비",
+      "item_content": "국외 여비 단가 준수",
+      "judge_criteria": "구비: ②,③ | 점검서류: 여비규정 | N/A: ② 202-03 집행 없음",
+      "law_ref": "J20203-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 38,
+      "category": "업무추진비",
+      "item_content": "품의·회의록(참석자·목적)",
+      "judge_criteria": "구비: ③ | 점검서류: 회의록,품의서 | N/A: ② 203 편성목 집행 없음",
+      "law_ref": "J203-01",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 39,
+      "category": "업무추진비",
+      "item_content": "카드전표·계좌이체",
+      "judge_criteria": "구비: ③ | 점검서류: 집행증빙 | N/A: ② 203 편성목 집행 없음",
+      "law_ref": "J203-02",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 40,
+      "category": "업무추진비",
+      "item_content": "업무시간외·심야 사용 소명",
+      "judge_criteria": "구비: ③ | 점검서류: 소명서 | N/A: ② 203 편성목 집행 없음",
+      "law_ref": "J203-03",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 41,
+      "category": "업무추진비",
+      "item_content": "카드 사용제한 업종",
+      "judge_criteria": "구비: ③ | 점검서류: 카드전표 | N/A: ② 203 편성목 집행 없음",
+      "law_ref": "J203-04",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 42,
+      "category": "시설비",
+      "item_content": "조달청·계약서·과업지시서",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약서,과업지시서 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-01",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 43,
+      "category": "시설비",
+      "item_content": "지방계약법 사업자 선정",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약서,입찰서류 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-02",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 44,
+      "category": "시설비",
+      "item_content": "2천만원 이상 나라장터",
+      "judge_criteria": "구비: ② | 점검서류: 계약서,조달내역 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-03",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 45,
+      "category": "시설비",
+      "item_content": "선금 70% 초과",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약서,지출결의 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-04",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 46,
+      "category": "시설비",
+      "item_content": "계약 근거서류·법규 충족",
+      "judge_criteria": "구비: ②,③ | 점검서류: 계약관련서류 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-05",
+      "risk_level": "H"
+    },
+    {
+      "item_no": 47,
+      "category": "시설비",
+      "item_content": "부가가치세 환급금 수입처리",
+      "judge_criteria": "구비: ④ | 점검서류: 회계·정산자료 | N/A: ② 401-01 집행 없음",
+      "law_ref": "J40101-06",
+      "risk_level": "M"
+    },
+    {
+      "item_no": 48,
+      "category": "교차",
+      "item_content": "사업기간 내 집행 여부 (① 기간 vs ② 집행일)",
+      "judge_criteria": "구비: ①,② | N/A: ① 미제출 시 W",
+      "law_ref": "X07",
+      "risk_level": "H"
+    }
+  ]
+}

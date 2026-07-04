@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}검토 결과{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% else %}
+<div class="d-flex justify-content-between align-items-start mb-4 no-print">
+    <div>
+        <h4>{{ review.data_type_nm }} — {{ review.business_nm }}</h4>
+        <p class="text-muted mb-0">
+            검토일: {{ review.review_at }} | 담당자: {{ review.reviewer }}
+            | 파일: {{ review.file_nm }}
+        </p>
+    </div>
+    <div>
+        {% if review.final_result == 'P' %}
+        <span class="badge badge-pass fs-6">적합</span>
+        {% elif review.final_result == 'W' %}
+        <span class="badge badge-warn fs-6">주의</span>
+        {% else %}
+        <span class="badge badge-fail fs-6">부적합</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 요약 카드 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="summary-card summary-card-pass">
+            <span class="count">{{ review.pass_cnt }}</span>적합
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="summary-card summary-card-warn">
+            <span class="count">{{ review.warn_cnt }}</span>주의
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="summary-card summary-card-fail">
+            <span class="count">{{ review.fail_cnt }}</span>부적합
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="summary-card summary-card-na">
+            <span class="count">{{ review.na_cnt | default(0) }}</span>해당없음
+        </div>
+    </div>
+</div>
+<p class="text-muted small mb-4">
+    적용 {{ review.applicable_item_cnt }}건 / 전체 {{ review.total_item_cnt }}건
+    {% if review.na_cnt %}
+    (해당없음 {{ review.na_cnt }}건은 최종 판정에서 제외)
+    {% endif %}
+</p>
+
+{% if profile_summary %}
+<div class="card profile-summary mb-4">
+    <div class="card-body py-3">
+        <h6 class="fw-semibold mb-2">사업 프로필 요약</h6>
+        <div class="row g-2 small">
+            <div class="col-md-6">
+                <span class="text-muted">제출 자료</span><br>
+                <strong>{{ profile_summary.docs_text }}</strong>
+            </div>
+            <div class="col-md-6">
+                <span class="text-muted">② 집행 세목</span><br>
+                <strong>{{ profile_summary.seomoks_text }}</strong>
+            </div>
+            {% if profile_summary.operating_grant_only %}
+            <div class="col-12">
+                <span class="badge bg-info text-dark">운영비 교부 사업만 (JC-04 적용)</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 위험 항목 -->
+{% if risk_items %}
+<div class="risk-box mb-4">
+    <h6 class="text-danger fw-bold">즉시 조치 필요 항목</h6>
+    <ul class="mb-0">
+    {% for item in risk_items %}
+        <li><strong>[{{ item.category }}]</strong> {{ item.item_content }}
+            — {{ item.judge_reason }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- 상세 테이블 -->
+<div class="card p-3 mb-4">
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead><tr>
+                <th>No</th><th>분류</th><th>점검항목</th>
+                <th>검토내용</th><th>결과</th><th>근거</th>
+                <th class="no-print">분석</th>
+            </tr></thead>
+            <tbody>
+            {% for d in review.details %}
+            <tr class="{% if d.judge_result == 'F' %}table-danger{% elif d.judge_result == 'W' %}table-warning{% elif d.judge_result == 'A' %}table-secondary text-muted{% endif %}">
+                <td>{{ d.item_no or '-' }}</td>
+                <td>{{ d.category }}</td>
+                <td>{{ d.item_content }}</td>
+                <td><small>{{ d.extracted_val or '-' }}</small></td>
+                <td>
+                    {% if d.judge_result == 'P' %}<span class="badge badge-pass">적합</span>
+                    {% elif d.judge_result == 'W' %}<span class="badge badge-warn">주의</span>
+                    {% elif d.judge_result == 'A' %}<span class="badge bg-secondary">해당없음</span>
+                    {% else %}<span class="badge badge-fail">부적합</span>{% endif %}
+                </td>
+                <td><small>{{ d.judge_reason }}</small></td>
+                <td class="no-print">
+                    {% if d.judge_result in ['W', 'F'] %}
+                    <button type="button" class="btn btn-sm btn-outline-primary btn-analysis"
+                            data-payload='{{ {"category": d.category, "item_content": d.item_content, "judge_result": d.judge_result, "data_type": review.data_type}|tojson }}'>
+                        상세분석
+                    </button>
+                    {% else %}
+                    <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex gap-2 no-print">
+    <button class="btn btn-primary" onclick="window.print()">보고서 출력</button>
+    <a href="/review/{{ review.review_id }}/report" class="btn btn-outline-primary">HTML 다운로드</a>
+    <a href="/history" class="btn btn-outline-secondary">검토 이력</a>
+    <a href="/review/new" class="btn btn-success">새 검토 시작</a>
+</div>
+
+<!-- Gemini 추가분석 모달 -->
+<div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white" style="background:var(--safe-primary)">
+                <h5 class="modal-title">Gemini 법령 추가분석</h5>
+                <span class="badge bg-warning text-dark ms-2">공개 법령 기반</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success py-2 mb-3">
+                    내부자료 미전송 — 점검항목명만 Gemini에 전달됩니다
+                </div>
+                <div id="analysis-loading" class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Gemini가 법령을 분석 중입니다...</p>
+                </div>
+                <div id="analysis-result" class="d-none">
+                    <h6 id="analysis-item-title" class="text-muted mb-3"></h6>
+                    <div id="analysis-content"
+                         class="p-3 bg-light rounded"
+                         style="white-space:pre-wrap;font-size:0.9rem;line-height:1.7"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted me-auto">
+                    AI 분석 결과는 참고용이며 최종 판단은 담당자가 합니다
+                </small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.btn-analysis').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const p = JSON.parse(btn.dataset.payload);
+        requestAnalysis(p.category, p.item_content, p.judge_result, p.data_type);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}설정{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">시스템 설정</h4>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <!-- Gemini API -->
+        <div class="card p-3 mb-3">
+            <h6 class="border-start border-primary border-4 ps-2 mb-3">Gemini API 설정</h6>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">API 키</label>
+                    <input type="password" class="form-control" id="gemini-key"
+                           placeholder="{% if settings.gemini_api_key %}API 키 설정됨 — 변경 시 새 키 입력{% else %}API 키 입력{% endif %}"
+                           value="">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-outline-primary w-100" onclick="testGemini()">연결 테스트</button>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">모델</label>
+                    <select class="form-select" id="gemini-model">
+                        <option value="gemini-2.5-flash" {% if settings.gemini_model == 'gemini-2.5-flash' %}selected{% endif %}>gemini-2.5-flash</option>
+                        <option value="gemini-2.0-flash" {% if settings.gemini_model == 'gemini-2.0-flash' %}selected{% endif %}>gemini-2.0-flash</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- OCR -->
+        <div class="card p-3 mb-3">
+            <h6 class="border-start border-primary border-4 ps-2 mb-3">OCR 설정</h6>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" checked disabled>
+                <label class="form-check-label">한국어</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" checked disabled>
+                <label class="form-check-label">영어</label>
+            </div>
+            <p class="text-muted small mt-2 mb-0">Tesseract: {{ settings.tesseract_path }}</p>
+        </div>
+
+        <!-- 파일 경로 -->
+        <div class="card p-3 mb-3">
+            <h6 class="border-start border-primary border-4 ps-2 mb-3">파일 저장 경로</h6>
+            <label class="form-label">업로드 경로</label>
+            <input type="text" class="form-control" id="upload-path" value="{{ settings.upload_path }}">
+            <p class="text-muted small mt-2">지식DB(공개자료): {{ settings.public_data_path }}</p>
+        </div>
+
+        <!-- DB -->
+        <div class="card p-3 mb-3">
+            <h6 class="border-start border-primary border-4 ps-2 mb-3">DB 관리</h6>
+            <p>
+                MariaDB: {{ settings.db_host }}:{{ settings.db_port }}/{{ settings.db_name }}
+                {% if settings.db_connected %}
+                <span class="badge badge-pass">연결됨</span>
+                {% else %}
+                <span class="badge badge-fail">연결 실패</span>
+                {% endif %}
+            </p>
+            <button class="btn btn-sm btn-outline-primary me-2" onclick="testDb()">DB 연결 테스트</button>
+            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetModal">
+                DB 초기화 (전체 삭제)
+            </button>
+        </div>
+
+        <button class="btn btn-primary px-4" onclick="saveSettings()">설정 저장</button>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 bg-light">
+            <h6>시스템 정보</h6>
+            <ul class="small text-muted mb-0">
+                <li>임베딩: {{ settings.embedding_model }}</li>
+                <li>버전: SAFE v1.0 (파일럿)</li>
+                <li>처리: 100% 로컬</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- DB 초기화 모달 -->
+<div class="modal fade" id="resetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">DB 초기화</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <strong>경고:</strong> 모든 검토 이력·체크리스트·로그가 삭제됩니다. 복구 불가!
+                </div>
+                <p>확인을 위해 아래에 <strong>초기화</strong>를 입력하세요.</p>
+                <input type="text" class="form-control" id="reset-confirm" placeholder="초기화">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button class="btn btn-danger" onclick="resetDb()">DB 초기화 실행</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function saveSettings() {
+    const body = {
+        gemini_api_key: document.getElementById('gemini-key').value,
+        gemini_model: document.getElementById('gemini-model').value,
+        upload_path: document.getElementById('upload-path').value,
+    };
+    const res = await apiFetch('/settings/api', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body),
+    });
+    if (res.success) showToast('설정이 저장되었습니다.');
+}
+
+async function testGemini() {
+    showLoading(true);
+    try {
+        const key = document.getElementById('gemini-key').value.trim();
+        const res = await apiFetch('/settings/api/test-gemini', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({gemini_api_key: key || null}),
+        });
+        showToast(res.success ? `연결 성공: ${res.message}` : res.message, res.success ? 'success' : 'error');
+    } finally { showLoading(false); }
+}
+
+async function testDb() {
+    const res = await apiFetch('/settings/api/test-db', {method: 'POST'});
+    showToast(res.message, res.success ? 'success' : 'error');
+}
+
+async function resetDb() {
+    const text = document.getElementById('reset-confirm').value;
+    const res = await apiFetch('/settings/api/reset-db', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({confirm_text: text}),
+    });
+    showToast(res.message, res.success ? 'success' : 'error');
+    if (res.success) bootstrap.Modal.getInstance(document.getElementById('resetModal')).hide();
+}
+</script>
+{% endblock %}

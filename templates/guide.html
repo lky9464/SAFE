@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}업무가이드{% endblock %}
+
+
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div>
+
+        <h4 class="mb-1">업무·감사사례 가이드</h4>
+
+        <p class="text-muted mb-0 small" id="guide-source">{{ meta.source }}</p>
+
+    </div>
+
+    <div class="no-print">
+
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">인쇄</button>
+
+    </div>
+
+</div>
+
+
+
+<!-- 가이드 문서 선택 -->
+<div class="mb-3 no-print">
+    <label class="form-label small text-muted mb-1">감사·업무 가이드 문서</label>
+    <select class="form-select form-select-sm" id="guide-select" onchange="switchGuide(this.value)">
+        {% for g in guides %}
+        <option value="{{ g.id }}" {% if g.id == guide_id %}selected{% endif %}>{{ g.title }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+
+
+<div class="row g-3">
+
+    <div class="col-md-4 no-print">
+
+        <div class="panel-left">
+
+            <div class="p-3 border-bottom">
+
+                <strong id="guide-toc-title">{{ meta.title }}</strong>
+
+                <div class="mt-2">
+
+                    <select class="form-select form-select-sm" id="filter-data-type" onchange="filterToc()">
+
+                        <option value="">전체 단계</option>
+
+                        {% for k, v in data_types.items() %}
+
+                        <option value="{{ k }}">SAFE {{ loop.index }}. {{ v }}</option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div id="guide-toc">
+
+                {% for sec in toc %}
+
+                <div class="guide-toc-item" data-id="{{ sec.id }}"
+
+                     data-types="{{ sec.data_types | join(',') }}"
+
+                     onclick="loadSection('{{ sec.id }}')">
+
+                    <div class="fw-semibold">{{ sec.title }}</div>
+
+                    {% if sec.data_type_labels %}
+
+                    <small class="text-primary">{{ sec.data_type_labels | join(' · ') }}</small>
+
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="col-md-8">
+
+        <div class="panel-right p-4 guide-content" id="guide-body">
+
+            {% if initial_html %}
+
+            <h2 id="guide-title">{{ initial_title }}</h2>
+
+            <div id="guide-related" class="guide-related mb-3"></div>
+
+            {{ initial_html | safe }}
+
+            {% else %}
+
+            <p class="text-muted text-center mt-5">좌측에서 단계를 선택하세요.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+let currentGuideId = '{{ guide_id }}';
+
+let currentSectionId = '{{ initial_section | default("") }}';
+
+
+
+async function switchGuide(guideId) {
+
+    currentGuideId = guideId;
+    currentSectionId = '';
+    const sel = document.getElementById('guide-select');
+    if (sel) sel.value = guideId;
+
+    showLoading(true);
+
+    try {
+
+        const data = await apiFetch(`/api/guide/toc?guide=${guideId}`);
+
+        document.getElementById('guide-source').textContent = data.meta.source;
+
+        document.getElementById('guide-toc-title').textContent = data.meta.title;
+
+        let tocHtml = '';
+
+        (data.sections || []).forEach(sec => {
+
+            const labels = (sec.data_type_labels || []).join(' · ');
+
+            tocHtml += `<div class="guide-toc-item" data-id="${sec.id}"
+
+                data-types="${(sec.data_types || []).join(',')}"
+
+                onclick="loadSection('${sec.id}')">
+
+                <div class="fw-semibold">${sec.title}</div>
+
+                ${labels ? `<small class="text-primary">${labels}</small>` : ''}
+
+            </div>`;
+
+        });
+
+        document.getElementById('guide-toc').innerHTML = tocHtml;
+
+        if (data.sections && data.sections.length) {
+
+            await loadSection(data.sections[0].id);
+
+        } else {
+
+            document.getElementById('guide-body').innerHTML =
+
+                '<p class="text-muted text-center mt-5">등록된 섹션이 없습니다.</p>';
+
+        }
+
+    } finally {
+
+        showLoading(false);
+
+    }
+
+}
+
+
+
+async function loadSection(id) {
+
+    currentSectionId = id;
+
+    document.querySelectorAll('.guide-toc-item').forEach(el => {
+
+        el.classList.toggle('active', el.dataset.id === id);
+
+    });
+
+    showLoading(true);
+
+    try {
+
+        const data = await apiFetch(`/api/guide/section/${id}?guide=${currentGuideId}`);
+
+        if (data.error) {
+
+            showToast(data.error, 'error');
+
+            return;
+
+        }
+
+        let related = '';
+
+        if (data.data_type_labels && data.data_type_labels.length) {
+
+            related = `<p class="guide-related"><strong>SAFE 연관 자료유형:</strong> ${data.data_type_labels.join(' · ')}</p>`;
+
+        }
+
+        document.getElementById('guide-body').innerHTML =
+
+            `<h2>${data.title}</h2>${related}${data.body_html}`;
+
+    } finally {
+
+        showLoading(false);
+
+    }
+
+}
+
+
+
+function filterToc() {
+
+    const val = document.getElementById('filter-data-type').value;
+
+    document.querySelectorAll('.guide-toc-item').forEach(el => {
+
+        if (!val) { el.style.display = ''; return; }
+
+        const types = (el.dataset.types || '').split(',').filter(Boolean);
+
+        el.style.display = types.includes(val) ? '' : 'none';
+
+    });
+
+}
+
+
+
+{% if initial_section %}
+
+document.querySelectorAll('.guide-toc-item').forEach(el => {
+
+    el.classList.toggle('active', el.dataset.id === '{{ initial_section }}');
+
+});
+
+{% endif %}
+
+</script>
+
+{% endblock %}
+
+

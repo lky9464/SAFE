@@ -1,0 +1,140 @@
+# =====================================================
+# SAFE — 지방보조금 부정수급 검토지원 시스템 .gitignore
+# =====================================================
+
+
+# ───────────────────────────────────────────────────
+# [1] 보안 / 환경설정  ★ 절대 커밋 금지
+# ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# API 키 백업 파일
+*.key
+secrets.json
+
+
+# ───────────────────────────────────────────────────
+# [2] 내부자료 / 업무데이터  ★ 외부 전송 금지
+# ───────────────────────────────────────────────────
+
+# 업로드된 검토 대상 파일 (사업계획서, 집행내역서 등)
+uploads/*
+!uploads/.gitkeep
+
+# 생성된 HTML 보고서
+reports/*
+!reports/.gitkeep
+
+# 지식DB 공개자료 폴더 (용량 크고 기관 자산)
+open_docs/*
+!open_docs/.gitkeep
+
+# 테스트용 샘플 문서
+test_docs/
+
+# Tesseract 언어 데이터 (용량 큼 — 별도 설치)
+tessdata/*.traineddata
+
+
+# ───────────────────────────────────────────────────
+# [3] AI 인덱스 / 모델 캐시  (재생성 가능)
+# ───────────────────────────────────────────────────
+
+# FAISS 벡터 인덱스 (python main.py --seed 로 재생성)
+faiss_index/
+
+# Hugging Face 임베딩 모델 캐시
+.cache/
+huggingface/
+sentence_transformers/
+~/.cache/huggingface/
+
+
+# ───────────────────────────────────────────────────
+# [4] Python
+# ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# 가상환경
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# 배포/빌드
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# pyright
+pyrightconfig.json
+
+
+# ───────────────────────────────────────────────────
+# [5] 로그
+# ───────────────────────────────────────────────────
+*.log
+logs/
+
+
+# ───────────────────────────────────────────────────
+# [6] OS / 에디터
+# ───────────────────────────────────────────────────
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VS Code / Cursor
+.vscode/
+!.vscode/extensions.json
+.cursor/
+
+# JetBrains (PyCharm 등)
+.idea/
+*.iml
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+
+
+# ───────────────────────────────────────────────────
+# [7] 선택적 커밋 항목 (팀 협의 후 결정)
+# ───────────────────────────────────────────────────
+
+# 체크리스트 JSON — 시드 파일은 커밋 권장, 생성본은 제외
+# checklists/         ← 주석 해제 시 전체 제외
+# checklists/checklist_type*.json  ← 특정 파일만 제외
+
+# OCR 중간 분석 텍스트 (docs/_ocr_*.txt 등)
+docs/_ocr_*.txt
+docs/_chungnam_*.txt
+docs/_extract_*.txt

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}검토 이력{% endblock %}
+
+{% block content %}
+<h4 class="mb-4">검토 이력 조회</h4>
+
+<!-- 필터 -->
+<div class="card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">자료유형</label>
+            <select class="form-select" id="filter-type">
+                <option value="">전체</option>
+                {% for k, v in data_types.items() %}
+                <option value="{{ k }}">{{ loop.index }}. {{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">결과</label>
+            <select class="form-select" id="filter-result">
+                <option value="">전체</option>
+                {% for k, v in result_labels.items() %}
+                <option value="{{ k }}">{{ v }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">시작일</label>
+            <input type="date" class="form-control" id="filter-from">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">종료일</label>
+            <input type="date" class="form-control" id="filter-to">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">사업명</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="filter-keyword" placeholder="키워드">
+                <button class="btn btn-primary" onclick="loadHistory(1)">검색</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 테이블 -->
+<div class="card p-3">
+    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="delete-toolbar">
+        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-enter-select" onclick="enterSelectMode()">
+            선택 삭제
+        </button>
+        <div id="select-mode-actions" class="d-none d-flex gap-2 align-items-center">
+            <button type="button" class="btn btn-danger btn-sm" id="btn-confirm-delete" onclick="confirmDeleteSelected()" disabled>
+                삭제
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-cancel-select" onclick="cancelSelectMode()">
+                취소
+            </button>
+            <small class="text-muted" id="select-mode-hint">삭제할 항목을 선택하세요.</small>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" id="btn-delete-all" onclick="deleteAll()">전체 삭제</button>
+        <small class="text-muted ms-1">전체 삭제는 현재 검색 조건에 맞는 이력을 모두 삭제합니다.</small>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover history-table" id="history-table">
+            <thead><tr>
+                <th class="select-col text-center">
+                    <input type="checkbox" class="history-check" id="check-all" disabled
+                           onchange="toggleSelectAll(this.checked)" aria-label="현재 페이지 전체 선택">
+                </th>
+                <th>No</th><th>유형</th><th>사업명</th>
+                <th>검토일</th><th>담당자</th><th>결과</th><th>상세</th>
+            </tr></thead>
+            <tbody id="history-body">
+                <tr><td colspan="7" class="text-center text-muted">로딩 중...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <span id="history-total" class="text-muted">전체 0건</span>
+        <nav><ul class="pagination pagination-sm mb-0" id="pagination"></ul></nav>
+        <button class="btn btn-outline-success btn-sm" onclick="exportCsv()">CSV보내기 (감사용)</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/history.js?v={{ static_ver }}"></script>
+{% endblock %}
